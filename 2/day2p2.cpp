@@ -7,56 +7,36 @@
 #include <vector>
 
 using namespace std;
-// 1 3 5 8 9
-//     ^
-bool check(vector<int>& r, int i, int prev, bool inc, bool first) { 
+
+bool check(vector<int>& r, int i, int skip, int prev, int pattern) { 
+  // processed all levels
   if (i == r.size()) {
     return true;
   }
-  int curr = r[i], diff = abs(curr - prev);
-  if (i == 0) {
-    return check(r, i + 1, curr, inc, first);
+  // skip index if you're at the skip
+  if (i == skip) {
+    return check(r, i + 1, skip, prev, pattern);
   }
-  // not inc or dec
-  if (diff == 0) {
-    if (!first) {
-      return false;
-    }
-    return check(r, i + 1, prev, inc, !first);
+  // set a prev if it has not been established yet
+  if (i == 0 || prev == -1) {
+    return check(r, i + 1, skip, r[i], pattern);
   }
-  // change is too big
-  if (diff > 3) {
-    if (!first) {
-      return false;
-    }
-    if (i != 1) {
-      return check(r, i + 1, prev, inc, !first);
-    }
-    bool c1, c2;
-    if (r[i + 1] > prev) {
-      c1 = check(r, i + 1, prev, true, !first);
-    } else {
-      c1 = check(r, i + 1, prev, false, !first);
-    }
-    if (r[i + 1] > curr) {
-      c2 = check(r, i + 1, curr, true, !first);
-    } else {
-      c2 = check(r, i + 1, curr, false, !first);
-    }
-    return c1 or c2;
+  // set a patten if it has not been established yet
+  // (1 means increasing, 0 means decreasing)
+  if (pattern == -1) {
+    pattern = 1 ? r[i] > prev : 0;
   }
-  if (i != 1) {
-    // violation of pattern (inc or dec)
-    if ((inc && curr < prev) || (!inc && curr > prev)) {
-      if (!first) {
-        return false;
-      }
-      return check(r, i + 1, prev, inc, !first);
-    }
-  } else { // i == 1, set pattern
-    inc = true ? curr > prev : false;
+  // false if diff too large
+  int diff = r[i] - prev;
+  if (abs(diff) > 3) {
+    return false;
   }
-  return check(r, i + 1, curr, inc, first);
+  // false if pattern is not followed
+  if (diff <= 0 && pattern == 1 || diff >= 0 && pattern == 0) {
+    return false;
+  }
+  // keep going otherwise
+  return check(r, i + 1, skip, r[i], pattern);
 }
 
 int main() {
@@ -67,6 +47,7 @@ int main() {
     exit(1);
   }
   int curr, result = 0;
+  bool update = false;
   string line;
   vector<int> r;
   // for each line (report) in the input
@@ -77,11 +58,16 @@ int main() {
       report >> curr;
       r.push_back(curr);
     }
-    if (check(r, 0, 0, true, true)) {
+    update = false;
+    for (int i = 0; i != r.size(); ++i) {
+      // i just try out removing each level (skull emoji)
+      update = update || check(r, 0, i, -1, -1);
+    }
+    if (update) {
       ++result;
     }
     while (!r.empty()) {
-      r.pop_back();
+      r.clear();
     }
   }
   // close file and print result
