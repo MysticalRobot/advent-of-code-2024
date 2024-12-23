@@ -41,7 +41,7 @@ bool check(vector<int>& r, int i, int skip, int prev, int pattern) {
 
 int main() {
   // open file
-  ifstream input("input2.txt");
+  ifstream input("input.txt");
   if (!input.is_open()) {
     cout << "Error opening input file" << endl;
     exit(1);

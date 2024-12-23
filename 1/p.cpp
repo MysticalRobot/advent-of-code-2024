@@ -14,7 +14,7 @@ int main() {
   
   // open input file
   ifstream indata;
-  indata.open("input1.txt");
+  indata.open("input.txt");
   if (!indata) {
     cerr << "Error: file could not be opened" << endl;
     exit(1);
