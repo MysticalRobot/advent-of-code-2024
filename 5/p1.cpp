@@ -1,55 +1,59 @@
 #include <fstream>
-#include <cmath>
-#include <vector>
+#include <iostream>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
-#include <sstream>
+#include <vector>
 
 using namespace std;
 
-/*
- * Some thoughts:
- * - im assuming the page ordering rules dont
- *   include impossible ones like 12|11 and 11|12
- *   - but i guess if that was the case it would be
- *     caught by my algorithm anyways
- * - all the ordering rules are 5 char long
- *   - two char for each page number + 1 char spacer
- * - the number of page numbers in each update is odd
- *   - so the middle page number is the n//2th number
- * - to verify each update:
- *   - for each page number in the update:
- *     - i need to check the page numbers before it
- *       to ensure that the current page number was
- *       not meant to come before it
- * - to store the ordering rules, I will have an
- *   unordered_map that maps page numbers to the
- *   page numbers it must come before, which are 
- *   stored in an unordered_set
- *   - i was considering an adjacency list but i
- *     wanted to reduce lookup times 
- */
-
 int main() {
-  ifstream input("input5.txt");
-  if (!input.is_open()) {
-    cout << "could not open file\n";
-    return 1;
+  ifstream input("input.txt");
+  unordered_map<int, vector<int>> rules;
+  int x, y, i, j, result = 0;
+  string line;
+  // nonchalantly grab the first 1176 rules
+  // map pages to a vector of pages they must come before
+  for (i = 0; i != 1176; ++i) {
+    getline(input, line);
+    x = stoi(line.substr(0, 2));
+    y = stoi(line.substr(3, 2));
+    if (rules.find(x) == rules.end()) {
+      rules[x] = vector<int> {y};
+    } else {
+      rules[x].push_back(y);
+    }
   }
-
-  unordered_map<int, int[5]> rules;
-
-  bool firstVal;
-  string line, val;
+  vector<int> nums;
+  bool valid;
+  // for each update
   while (getline(input, line)) {
-    stringstream ss(line);
-    firstVal = false;
-    string val;
-    while (getline(rule, val, "|")) {
-      if (firstVal) {
-        
+    // cheekily parse the update
+    for (i = 0; i * 3 < line.size(); ++i) {
+      nums.push_back(stoi(line.substr(i * 3, 2)));
+    }
+    // for each page
+    valid = true;
+    for (i = 0; i != nums.size(); ++i) {
+      // if there are no pages it needs to come before, so be it
+      if (rules.find(nums[i]) == rules.end()) {
+        continue;
       }
-    } 
+      // make sure all the pages behind are allowed to be behind it
+      vector<int>& v = rules[nums[i]];
+      for (j = i - 1; j != -1; --j) {
+        if (find(v.begin(), v.end(), nums[j]) != v.end()) {
+          valid = false;
+          break;
+        }
+      }
+    }
+    // if the update is valid, add the middle number to the result
+    if (valid) {
+      result += nums[nums.size() / 2];
+    }
+    nums.clear();
   }
+  // toilet
+  input.close();
+  cout << "skibidi result = " << result << endl;
 }
