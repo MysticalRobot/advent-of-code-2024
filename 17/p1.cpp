@@ -67,6 +67,7 @@ int main() {
   return 0;
 }
 
+// uhhh
 int powOf2(int power) {
   return power != 0 ? 2 << (power - 1) : 1;
 }
