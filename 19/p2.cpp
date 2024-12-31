@@ -91,7 +91,7 @@ void insert(Trie* t, std::string& s) {
 }
 
 long possibleWays(std::vector<std::unordered_map<Trie*, long>>& checked, Trie* root, Trie* curr, std::string& s, int i) {
-  // prevent the solving of subproblems that don't need to be resolved
+  // prevent the solving of duplicate subproblems
   if (checked[i].find(curr) != checked[i].end()) {
     return checked[i][curr];
   }

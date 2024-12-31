@@ -103,20 +103,16 @@ void insert(Trie* t, std::string& s) {
 }
 
 bool isPossible(std::vector<std::unordered_map<Trie*, bool>>& checked, Trie* root, Trie* curr, std::string& s, int i) {
-  // prevent the solving of subproblems that don't need to be resolved
+  // prevent the solving of duplicate subproblems
   if (checked[i].find(curr) != checked[i].end()) {
     return checked[i][curr];
   }
   bool result = false;
   int color = i != s.size() ? findColor(s[i]) : END;
-  // pattern is not available at current or root level or trie
+  // pattern is not available at current level
   if (curr->colors[color] == NULL) {
-    // consider switching pattern if it ends here
-    if (curr != root && curr->colors[END] != NULL) {
-      result = isPossible(checked, root, root, s, i);
-    }
-    checked[i][curr] = result;
-    return result;
+    checked[i][curr] = false;
+    return false;
   }
   // processed entire design -> design is possible
   if (i == s.size()) {
